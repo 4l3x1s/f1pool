@@ -1,0 +1,13 @@
+{
+  "name": "F1 2026 Pool",
+  "short_name": "F1 Pool",
+  "description": "Track your F1 2026 fantasy pool standings",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#e10600",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

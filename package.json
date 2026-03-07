@@ -1,0 +1,10 @@
+{
+  "name": "f1-2026-pool",
+  "version": "1.0.0",
+  "description": "F1 2026 Fantasy Pool PWA with push notifications",
+  "engines": { "node": ">=18" },
+  "dependencies": {
+    "@upstash/redis": "^1.34.0",
+    "web-push": "^3.6.7"
+  }
+}
