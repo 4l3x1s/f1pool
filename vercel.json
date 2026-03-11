@@ -8,9 +8,9 @@
     { "source": "/(.*)", "destination": "/public/index.html" }
   ],
   "crons": [
-    {
-      "path": "/api/check-and-notify",
-      "schedule": "0 20 * * *"
-    }
-  ]
+  {
+    "path": "/api/check-and-notify",
+    "schedule": "0 21 * * *"
+  }
+]
 }
