@@ -214,138 +214,11 @@
     .section-header:first-child {
       margin-top: 0
     }
-
-    .entry-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 10px;
-      cursor: pointer;
-      transition: border-color .2s, transform .15s;
-      position: relative;
-      overflow: hidden
-    }
-
-    .entry-card:active {
-      transform: scale(.98)
-    }
-
-    .entry-card.rank-1 {
-      border-color: var(--gold)
-    }
-
-    .rank-ghost {
-      position: absolute;
-      top: 0;
-      right: 0;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 800;
-      font-size: 52px;
-      color: rgba(255, 255, 255, .04);
-      line-height: 1;
-      padding: 4px 10px
-    }
-
-    .entry-top {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px
-    }
-
-    .entry-bar {
-      width: 4px;
-      height: 36px;
-      border-radius: 2px;
-      flex-shrink: 0
-    }
-
-    .entry-name {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 700;
-      font-size: 17px
-    }
-
-    .entry-owner {
-      font-size: 12px;
-      color: var(--muted)
-    }
-
-    .entry-pts {
-      margin-left: auto;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 800;
-      font-size: 28px
-    }
-
-    .entry-pts span {
-      font-size: 12px;
-      font-weight: 400;
-      color: var(--muted)
-    }
-
-    .entry-breakdown {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px
-    }
-
-    .bd-item {
-      background: var(--card2);
-      border-radius: 6px;
-      padding: 6px 8px;
-      text-align: center
-    }
-
-    .bd-label {
-      font-size: 9px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .5px
-    }
-
-    .bd-val {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 700;
-      font-size: 16px;
-      margin-top: 1px
-    }
-
-    .season-progress {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px;
-      margin-top: 4px
-    }
-
-    .prog-hdr {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      font-size: 12px
-    }
-
-    .prog-bar {
-      height: 4px;
-      background: var(--border);
-      border-radius: 2px;
-      overflow: hidden
-    }
-
-    .prog-fill {
-      height: 100%;
-      background: var(--red);
-      border-radius: 2px;
-      transition: width .5s
-    }
   </style>
 </head>
 
 <body>
   <div id="app">
-    <!-- your original header, main, nav unchanged -->
     <div id="header">
       <div class="header-left">
         <div class="f1-badge">F1</div>
@@ -402,7 +275,7 @@
     // ============================================================
     const F1_PTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
 
-    const ENTRIES = [ /* your 4 entries from lib/entries.js */];
+    const ENTRIES = [ /* paste your 4 ENTRIES from lib/entries.js here */];
 
     const TEAM_NAMES = { /* your TEAM_NAMES */ };
     const DRIVER_TEAM = { /* your DRIVER_TEAM */ };
@@ -410,7 +283,7 @@
     const BASE = 'https://api.jolpi.ca/ergast/f1/2026';
     let RACES = [];
 
-    // SAFE LOCALSTORAGE
+    // SAFE LOCALSTORAGE (fixes iOS sandbox error)
     const safeStorage = {
       getItem: (key) => { try { return localStorage.getItem(key); } catch (e) { return null; } },
       setItem: (key, value) => { try { localStorage.setItem(key, value); } catch (e) { } },
@@ -472,7 +345,10 @@
       showToast('✓ Results updated');
     }
 
-    // (All your original functions — calcAll, renderLeaderboard, renderRaces, toggleNotifications, showScreen, updateLastUpdated, etc. — paste them here from your previous index.html)
+    // (Paste all your original functions here from your previous index.html — calcAll, renderLeaderboard, renderRaces, toggleNotifications, showScreen, updateLastUpdated, etc.)
+
+    // TEMPORARILY DISABLE SERVICE WORKER (this breaks the old cache)
+    // navigator.serviceWorker.register('/sw.js').catch(err => console.error('SW registration failed:', err));
 
   </script>
 </body>
