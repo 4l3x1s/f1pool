@@ -1,4 +1,4 @@
-const CACHE = 'f1pool-v2';
+const CACHE = 'f1pool-v3';
 const ASSETS = ['/', '/index.html', '/manifest.json', '/icon.svg'];
 
 // ---- Install ----
