@@ -214,13 +214,12 @@
     .section-header:first-child {
       margin-top: 0
     }
-
-    /* All your original card/race/stats styles are kept exactly the same */
   </style>
 </head>
 
 <body>
   <div id="app">
+    <!-- your header, main, nav unchanged -->
     <div id="header">
       <div class="header-left">
         <div class="f1-badge">F1</div>
@@ -277,7 +276,7 @@
     // ============================================================
     const F1_PTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
 
-    const ENTRIES = [ /* paste your 4 ENTRIES here from lib/entries.js */];
+    const ENTRIES = [ /* your 4 entries from lib/entries.js */];
 
     const TEAM_NAMES = { /* your TEAM_NAMES */ };
     const DRIVER_TEAM = { /* your DRIVER_TEAM */ };
@@ -285,7 +284,7 @@
     const BASE = 'https://api.jolpi.ca/ergast/f1/2026';
     let RACES = [];
 
-    // SAFE LOCALSTORAGE
+    // SAFE LOCALSTORAGE (fixes iOS sandbox error)
     const safeStorage = {
       getItem: (key) => { try { return localStorage.getItem(key); } catch (e) { return null; } },
       setItem: (key, value) => { try { localStorage.setItem(key, value); } catch (e) { } },
@@ -347,7 +346,7 @@
       showToast('✓ Results updated');
     }
 
-    // (All other functions — calcAll, renderLeaderboard, renderRaces, toggleNotifications, etc. — remain exactly as in your original file)
+    // (All other functions from your original index.html — calcAll, renderLeaderboard, renderRaces, toggleNotifications, etc. — are kept exactly the same)
 
   </script>
 </body>
