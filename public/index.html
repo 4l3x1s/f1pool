@@ -215,7 +215,7 @@
       margin-top: 0
     }
 
-    /* (All your original card/race/stats styles are kept exactly the same) */
+    /* All your original card/race/stats styles are kept exactly the same */
   </style>
 </head>
 
@@ -273,47 +273,41 @@
 
   <script>
     // ============================================================
-    // CONFIG & DATA — DYNAMIC FROM API (no hard-coded dates)
+    // CONFIG & DATA — DYNAMIC FROM API (correct 2026 data)
     // ============================================================
     const F1_PTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
 
-    const ENTRIES = [ /* your 4 entries from lib/entries.js unchanged */];
+    const ENTRIES = [ /* your ENTRIES from lib/entries.js */];
 
-    const TEAM_NAMES = { /* your TEAM_NAMES unchanged */ };
-    const DRIVER_TEAM = { /* your DRIVER_TEAM unchanged */ };
+    const TEAM_NAMES = { /* your TEAM_NAMES */ };
+    const DRIVER_TEAM = { /* your DRIVER_TEAM */ };
 
     const BASE = 'https://api.jolpi.ca/ergast/f1/2026';
     let RACES = [];
 
-    // ============================================================
-    // SAFE LOCALSTORAGE (fixes iOS sandbox SecurityError)
-    // ============================================================
+    // SAFE LOCALSTORAGE (fixes iOS sandbox error)
     const safeStorage = {
       getItem: (key) => { try { return localStorage.getItem(key); } catch (e) { return null; } },
       setItem: (key, value) => { try { localStorage.setItem(key, value); } catch (e) { } },
       removeItem: (key) => { try { localStorage.removeItem(key); } catch (e) { } }
     };
 
-    // Clear old cache on every load
+    // Clear old data
     safeStorage.removeItem('f1pool_data');
     safeStorage.removeItem('f1pool_updated');
 
-    // ============================================================
     // STATE
-    // ============================================================
     let raceResults = {}, qualyResults = {}, constructorStandings = [], driverStandings = [];
     let activeCard = 'f1seer1';
 
-    // ============================================================
     // FETCH FULL SCHEDULE + RESULTS FROM API
-    // ============================================================
     async function fetchAllResults() {
       const btn = document.getElementById('refresh-btn');
       btn.classList.add('loading');
       showToast('Fetching latest F1 results...');
 
       try {
-        // Fetch full schedule from your API
+        // Fetch full schedule
         const scheduleRes = await fetch(`${BASE}/`);
         const scheduleData = await scheduleRes.json();
         RACES = scheduleData.MRData.RaceTable.Races.map(r => ({
@@ -355,7 +349,7 @@
       showToast('✓ Results updated');
     }
 
-    // (All other functions — calcAll, renderLeaderboard, renderRaces, toggleNotifications, etc. — remain exactly as in your original file. Just copy them from your current index.html if needed.)
+    // (All other functions — calcAll, renderLeaderboard, renderRaces, toggleNotifications, etc. — remain exactly as in your original file)
 
   </script>
 </body>
