@@ -215,7 +215,7 @@
       margin-top: 0
     }
 
-    /* (All your original card, race, stats styles are here — I kept them exactly as in your file) */
+    /* (All your original card/race/stats styles are kept exactly the same) */
   </style>
 </head>
 
@@ -263,38 +263,46 @@
     </div>
 
     <nav id="nav">
-      <!-- your nav buttons unchanged -->
+      <button class="nav-item active" onclick="showScreen('leaderboard')">Standings</button>
+      <button class="nav-item" onclick="showScreen('races')">Races</button>
+      <button class="nav-item" onclick="showScreen('cards')">Cards</button>
+      <button class="nav-item" onclick="showScreen('stats')">Stats</button>
     </nav>
   </div>
   <div id="toast"></div>
 
   <script>
     // ============================================================
-    // CONFIG & DATA — DYNAMIC FROM API (no hard-coded calendar)
+    // CONFIG & DATA — DYNAMIC FROM API (no hard-coded dates)
     // ============================================================
     const F1_PTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
 
-    const ENTRIES = [ /* your 4 entries unchanged */];
+    const ENTRIES = [ /* your 4 entries from lib/entries.js unchanged */];
 
-    const TEAM_NAMES = { /* unchanged */ };
-    const DRIVER_TEAM = { /* unchanged */ };
+    const TEAM_NAMES = { /* your TEAM_NAMES unchanged */ };
+    const DRIVER_TEAM = { /* your DRIVER_TEAM unchanged */ };
 
     const BASE = 'https://api.jolpi.ca/ergast/f1/2026';
     let RACES = [];
-    // SAFE LOCALSTORAGE WRAPPER - fixes iOS sandbox SecurityError
+
+    // ============================================================
+    // SAFE LOCALSTORAGE (fixes iOS sandbox SecurityError)
+    // ============================================================
     const safeStorage = {
       getItem: (key) => { try { return localStorage.getItem(key); } catch (e) { return null; } },
       setItem: (key, value) => { try { localStorage.setItem(key, value); } catch (e) { } },
       removeItem: (key) => { try { localStorage.removeItem(key); } catch (e) { } }
     };
 
+    // Clear old cache on every load
+    safeStorage.removeItem('f1pool_data');
+    safeStorage.removeItem('f1pool_updated');
+
     // ============================================================
-    // STATE + FORCE CLEAR OLD CACHED DATA
+    // STATE
     // ============================================================
     let raceResults = {}, qualyResults = {}, constructorStandings = [], driverStandings = [];
     let activeCard = 'f1seer1';
-    localStorage.removeItem('f1pool_data');
-    localStorage.removeItem('f1pool_updated');
 
     // ============================================================
     // FETCH FULL SCHEDULE + RESULTS FROM API
@@ -305,7 +313,7 @@
       showToast('Fetching latest F1 results...');
 
       try {
-        // 1. Fetch full schedule (dates, circuits, flags)
+        // Fetch full schedule from your API
         const scheduleRes = await fetch(`${BASE}/`);
         const scheduleData = await scheduleRes.json();
         RACES = scheduleData.MRData.RaceTable.Races.map(r => ({
@@ -313,10 +321,10 @@
           name: r.raceName,
           circuit: r.Circuit.circuitName,
           date: r.date,
-          flag: '🏁'  // you can improve flags later
+          flag: '🏁'
         }));
 
-        // 2. Fetch results
+        // Fetch results
         const resRes = await fetch(`${BASE}/results.json?limit=50`);
         const resData = await resRes.json();
         const races = resData?.MRData?.RaceTable?.Races || [];
@@ -337,8 +345,8 @@
       await fetchStandings();
 
       try {
-        localStorage.setItem('f1pool_data', JSON.stringify({ raceResults, qualyResults, constructorStandings, driverStandings }));
-        localStorage.setItem('f1pool_updated', new Date().toISOString());
+        safeStorage.setItem('f1pool_data', JSON.stringify({ raceResults, qualyResults, constructorStandings, driverStandings }));
+        safeStorage.setItem('f1pool_updated', new Date().toISOString());
       } catch (e) { }
 
       btn.classList.remove('loading');
@@ -347,7 +355,7 @@
       showToast('✓ Results updated');
     }
 
-    // (All other functions — renderLeaderboard, renderRaces, toggleNotifications, etc. — remain exactly as in your original code)
+    // (All other functions — calcAll, renderLeaderboard, renderRaces, toggleNotifications, etc. — remain exactly as in your original file. Just copy them from your current index.html if needed.)
 
   </script>
 </body>

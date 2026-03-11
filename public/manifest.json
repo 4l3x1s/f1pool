@@ -1,13 +1,42 @@
 {
+  "id": "f1pool-2026",
   "name": "F1 2026 Pool",
   "short_name": "F1 Pool",
   "description": "Track your F1 2026 fantasy pool standings",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
   "theme_color": "#e10600",
   "orientation": "portrait",
+  "lang": "en",
+  "categories": ["sports", "entertainment"],
   "icons": [
-    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Standings",
+      "short_name": "Standings",
+      "url": "/#standings",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Races",
+      "short_name": "Races",
+      "url": "/#races",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+    }
   ]
 }
