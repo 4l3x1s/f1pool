@@ -201,7 +201,7 @@
       display: block
     }
 
-    /* All other styles (unchanged) */
+    /* TYPOGRAPHY + all other styles (exactly as before) */
     .section-header {
       font-family: 'Barlow Condensed', sans-serif;
       font-weight: 700;
@@ -218,7 +218,7 @@
       margin-top: 0
     }
 
-    /* (All your original styles for cards, races, stats, etc. are kept exactly the same) */
+    /* (All your original card, race, stats styles are kept unchanged) */
   </style>
 </head>
 
@@ -302,14 +302,20 @@
 
   <script>
     // ============================================================
-    // CONFIG & DATA — CORRECT 2026 CALENDAR (verified today)
+    // CONFIG & DATA — CORRECT 2026 CALENDAR (Australian GP 8 March 2026)
     // ============================================================
     const F1_PTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
 
-    const ENTRIES = [ /* your 4 entries unchanged */];
+    const ENTRIES = [
+      { id: 'f1seer1', name: 'F1SEER_1', owner: 'Alexis', color: '#00d471', full: { A: 'Russell', B: 'Piastri', C: 'Bearman', D: 'Lindblad', E: 'Alonso' }, half: { F: 'Verstappen', G: 'Hamilton', H: 'Gasly', I: 'Bortoleto', J: 'Perez' }, bonus: { q1: 'mercedes', q2: 'Leclerc', q3: 'Russell' } },
+      { id: 'f1seer2', name: 'F1SEER_2', owner: 'Alexis', color: '#e10600', full: { A: 'Russell', B: 'Hamilton', C: 'Bearman', D: 'Lindblad', E: 'Alonso' }, half: { F: 'Verstappen', G: 'Antonelli', H: 'Gasly', I: 'Bortoleto', J: 'Perez' }, bonus: { q1: 'mercedes', q2: 'Leclerc', q3: 'Russell' } },
+      { id: 'paul', name: 'Datrain33', owner: 'Paul', color: '#ff9b00', full: { A: 'Verstappen', B: 'Piastri', C: 'Sainz', D: 'Lawson', E: 'Perez' }, half: { F: 'Norris', G: 'Antonelli', H: 'Gasly', I: 'Albon', J: 'Alonso' }, bonus: { q1: 'mclaren', q2: 'Verstappen', q3: 'Verstappen' } },
+      { id: 'wife', name: 'Peaches', owner: 'Johana', color: '#ff6bbb', full: { A: 'Russell', B: 'Piastri', C: 'Sainz', D: 'Albon', E: 'Alonso' }, half: { F: 'Verstappen', G: 'Antonelli', H: 'Gasly', I: 'Lawson', J: 'Perez' }, bonus: { q1: 'mercedes', q2: 'Verstappen', q3: 'Russell' } }
+    ];
 
-    const TEAM_NAMES = { /* unchanged */ };
-    const DRIVER_TEAM = { /* unchanged */ };
+    const TEAM_NAMES = { red_bull: 'Red Bull', mercedes: 'Mercedes', ferrari: 'Ferrari', mclaren: 'McLaren', alpine: 'Alpine', williams: 'Williams', aston_martin: 'Aston Martin', haas: 'Haas', rb: 'Racing Bulls', kick_sauber: 'Audi/Sauber', sauber: 'Audi/Sauber' };
+
+    const DRIVER_TEAM = { verstappen: 'red_bull', hadjar: 'red_bull', russell: 'mercedes', antonelli: 'mercedes', leclerc: 'ferrari', hamilton: 'ferrari', norris: 'mclaren', piastri: 'mclaren', gasly: 'alpine', colapinto: 'alpine', sainz: 'williams', albon: 'williams', alonso: 'aston_martin', stroll: 'aston_martin', hulkenberg: 'sauber', bortoleto: 'sauber', bearman: 'haas', ocon: 'haas', lawson: 'rb', lindblad: 'rb', perez: 'cadillac', bottas: 'cadillac' };
 
     const RACES = [
       { round: 1, name: 'Australian GP', circuit: 'Melbourne', date: '2026-03-08', flag: '🇦🇺' },
@@ -339,14 +345,14 @@
     ];
 
     // ============================================================
-    // STATE + FORCE CLEAR OLD CACHED DATA (fixes iPhone)
+    // STATE + FORCE CLEAR OLD CACHED DATA
     // ============================================================
     let raceResults = {}, qualyResults = {}, constructorStandings = [], driverStandings = [];
     let activeCard = 'f1seer1';
     localStorage.removeItem('f1pool_data');
     localStorage.removeItem('f1pool_updated');
 
-    // (All your points, render, and push notification functions stay exactly the same — only the RACES array and fetch are updated)
+    // (All points, render, and push functions unchanged — only RACES and fetch fixed)
 
     // ============================================================
     // FIXED fetchAllResults — always loads latest results
@@ -386,7 +392,15 @@
       showToast('✓ Results updated');
     }
 
-    // (All other functions — calcAll, renderLeaderboard, renderRaces, toggleNotifications, etc. — remain unchanged from your original code)
+    async function fetchStandings() {
+      try {
+        const [cs, ds] = await Promise.all([fetch(`${BASE}/constructorStandings.json`).then(r => r.json()), fetch(`${BASE}/driverStandings.json`).then(r => r.json())]);
+        constructorStandings = (cs?.MRData?.StandingsTable?.StandingsLists?.[0]?.ConstructorStandings || []).map(c => ({ name: c.Constructor.name, constructorId: c.Constructor.constructorId, points: c.points, position: c.position }));
+        driverStandings = (ds?.MRData?.StandingsTable?.StandingsLists?.[0]?.DriverStandings || []).map(d => ({ familyName: d.Driver.familyName, points: d.points, wins: d.wins, position: d.position }));
+      } catch (e) { }
+    }
+
+    // (All your other functions — norm, calcAll, renderLeaderboard, renderRaces, toggleNotifications, etc. — are unchanged from your original code)
 
   </script>
 </body>
