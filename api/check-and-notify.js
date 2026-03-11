@@ -40,7 +40,6 @@ async function fetchLatestRaceResult() {
 }
 
 async function fetchAllRaceResults() {
-  // Fetch all completed race results for points calculation
   try {
     const res = await fetch(`${BASE}/results.json?limit=100`);
     const data = await res.json();
@@ -63,8 +62,6 @@ async function fetchAllRaceResults() {
 function buildNotificationPayload(race, sorted) {
   const winner = race.results[0];
   const podium = race.results.slice(0, 3).map(r => r.familyName).join(' / ');
-
-  // Top 3 entries leaderboard
   const leaderboard = sorted.slice(0, 3)
     .map((e, i) => `${['🥇','🥈','🥉'][i]} ${e.name}: ${e.points.total.toFixed(1)}pts`)
     .join('  ');
@@ -90,7 +87,6 @@ async function sendPushToAll(payload) {
       await webpush.sendNotification(subscription, JSON.stringify(payload));
       sent++;
     } catch (err) {
-      // 410 Gone = subscription expired/revoked → remove it
       if (err.statusCode === 410 || err.statusCode === 404) {
         await redis.del(key);
         await redis.srem('subscriptions', key);
@@ -103,7 +99,6 @@ async function sendPushToAll(payload) {
 }
 
 module.exports = async function(req, res) {
-  // Security: only allow Vercel cron calls or requests with correct secret
   const isCron = req.headers['x-vercel-cron'] === '1';
   const isAuthed = req.headers['authorization'] === `Bearer ${process.env.CRON_SECRET}`;
   if (!isCron && !isAuthed) {
@@ -111,26 +106,21 @@ module.exports = async function(req, res) {
   }
 
   try {
-    // 1. Fetch latest race result
     const latest = await fetchLatestRaceResult();
     if (!latest) return res.status(200).json({ message: 'No results yet' });
 
-    // 2. Check if we already notified for this round
     const lastNotified = await redis.get('last_notified_round');
     const lastRound = lastNotified ? parseInt(lastNotified) : 0;
     if (latest.round <= lastRound) {
       return res.status(200).json({ message: `Already notified round ${latest.round}` });
     }
 
-    // 3. Fetch all results and calculate pool standings
     const raceResults = await fetchAllRaceResults();
     const sorted = calcAllEntries(raceResults);
 
-    // 4. Build and send notification
     const payload = buildNotificationPayload(latest, sorted);
     const { sent, removed } = await sendPushToAll(payload);
 
-    // 5. Mark as notified
     await redis.set('last_notified_round', latest.round);
 
     console.log(`Round ${latest.round}: Notified ${sent} subscribers, removed ${removed} expired`);
