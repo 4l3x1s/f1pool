@@ -270,6 +270,24 @@
   <div id="toast"></div>
 
   <script>
+    // UNREGISTER ALL OLD SERVICE WORKERS + SAFE LOCALSTORAGE (fixes iOS cache)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        for (let registration of registrations) {
+          registration.unregister();
+        }
+      });
+    }
+
+    const safeStorage = {
+      getItem: (key) => { try { return localStorage.getItem(key); } catch (e) { return null; } },
+      setItem: (key, value) => { try { localStorage.setItem(key, value); } catch (e) { } },
+      removeItem: (key) => { try { localStorage.removeItem(key); } catch (e) { } }
+    };
+
+    // Clear old cache
+    safeStorage.removeItem('f1pool_data');
+    safeStorage.removeItem('f1pool_updated');
     // UNREGISTER ALL OLD SERVICE WORKERS (this breaks the stubborn cache)
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(registrations => {
