@@ -270,12 +270,21 @@
   <div id="toast"></div>
 
   <script>
+    // UNREGISTER ALL OLD SERVICE WORKERS (this breaks the stubborn cache)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        for (let registration of registrations) {
+          registration.unregister();
+        }
+      });
+    }
+
     // ============================================================
     // CONFIG & DATA — DYNAMIC FROM API
     // ============================================================
     const F1_PTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
 
-    const ENTRIES = [ /* paste your 4 ENTRIES from lib/entries.js here */];
+    const ENTRIES = [ /* your 4 entries from lib/entries.js */];
 
     const TEAM_NAMES = { /* your TEAM_NAMES */ };
     const DRIVER_TEAM = { /* your DRIVER_TEAM */ };
@@ -283,7 +292,7 @@
     const BASE = 'https://api.jolpi.ca/ergast/f1/2026';
     let RACES = [];
 
-    // SAFE LOCALSTORAGE (fixes iOS sandbox error)
+    // SAFE LOCALSTORAGE
     const safeStorage = {
       getItem: (key) => { try { return localStorage.getItem(key); } catch (e) { return null; } },
       setItem: (key, value) => { try { localStorage.setItem(key, value); } catch (e) { } },
@@ -346,9 +355,6 @@
     }
 
     // (Paste all your original functions here from your previous index.html — calcAll, renderLeaderboard, renderRaces, toggleNotifications, showScreen, updateLastUpdated, etc.)
-
-    // TEMPORARILY DISABLE SERVICE WORKER (this breaks the old cache)
-    // navigator.serviceWorker.register('/sw.js').catch(err => console.error('SW registration failed:', err));
 
   </script>
 </body>
