@@ -27,7 +27,7 @@ self.addEventListener('fetch', event => {
   );
 });
 
-// Push + Click (unchanged, works on Android & iOS)
+// Push + Click
 self.addEventListener('push', event => {
   let data = { title: '🏁 F1 2026 Pool', body: 'Race results updated!', url: '/' };
   try { if (event.data) data = { ...data, ...event.data.json() }; } catch(e) {}
