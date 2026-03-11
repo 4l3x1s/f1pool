@@ -4,350 +4,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#e10600">
-  <link rel="manifest" href="/manifest.json">
-  <link rel="apple-touch-icon" href="/icon.svg">
-  <title>F1 2026 Pool</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap"
-    rel="stylesheet">
+  <title>F1 2026 Pool - Diagnostic</title>
   <style>
-    :root {
-      --red: #e10600;
-      --black: #0a0a0a;
-      --card: #141414;
-      --card2: #1c1c1c;
-      --border: #2a2a2a;
-      --text: #f0f0f0;
-      --muted: #777;
-      --green: #00d471;
-      --gold: #ffd700;
-      --blue: #00aaff;
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-      --safe-top: env(safe-area-inset-top, 0px)
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent
-    }
-
-    html,
     body {
-      height: 100%;
-      background: var(--black);
-      color: var(--text);
-      font-family: 'Barlow', sans-serif;
-      overflow: hidden
+      font-family: sans-serif;
+      padding: 20px;
+      background: #000;
+      color: #fff;
+      line-height: 1.6;
     }
 
-    #app {
-      display: flex;
-      flex-direction: column;
-      height: 100dvh
-    }
-
-    #header {
-      background: var(--black);
-      border-bottom: 2px solid var(--red);
-      padding: calc(var(--safe-top)+12px) 16px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-      z-index: 10
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 10px
-    }
-
-    .f1-badge {
-      background: var(--red);
-      color: white;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 800;
-      font-size: 13px;
-      letter-spacing: 1px;
-      padding: 3px 7px;
-      border-radius: 3px
-    }
-
-    .header-title {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 700;
+    #status {
       font-size: 18px;
-      letter-spacing: .5px
-    }
-
-    .header-sub {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 1px
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 8px;
-      align-items: center
-    }
-
-    #bell-btn {
-      background: var(--card2);
-      border: 1px solid var(--border);
-      color: var(--muted);
+      margin: 20px 0;
+      padding: 15px;
+      background: #1c1c1c;
       border-radius: 8px;
-      padding: 8px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      transition: all .2s;
-      font-size: 17px;
-      line-height: 1
-    }
-
-    #bell-btn.subscribed {
-      color: var(--gold);
-      border-color: var(--gold);
-      background: rgba(255, 215, 0, .1)
-    }
-
-    #refresh-btn {
-      background: var(--card2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 13px;
-      font-family: 'Barlow', sans-serif;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: background .2s
-    }
-
-    #refresh-btn:active {
-      background: var(--border)
-    }
-
-    #refresh-btn.loading .spin {
-      animation: spin 1s linear infinite
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg)
-      }
-    }
-
-    #main {
-      flex: 1;
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch
-    }
-
-    #nav {
-      background: var(--card);
-      border-top: 1px solid var(--border);
-      display: flex;
-      padding-bottom: var(--safe-bottom);
-      flex-shrink: 0
-    }
-
-    .nav-item {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      padding: 10px 4px;
-      cursor: pointer;
-      font-size: 10px;
-      color: var(--muted);
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 600;
-      letter-spacing: .5px;
-      text-transform: uppercase;
-      transition: color .2s;
-      border: none;
-      background: none
-    }
-
-    .nav-item.active {
-      color: var(--red)
-    }
-
-    .nav-item svg {
-      width: 22px;
-      height: 22px
-    }
-
-    .screen {
-      display: none;
-      padding: 16px 16px 24px
-    }
-
-    .screen.active {
-      display: block
-    }
-
-    .section-header {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 700;
-      font-size: 11px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin: 20px 0 10px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid var(--border)
-    }
-
-    .section-header:first-child {
-      margin-top: 0
     }
   </style>
 </head>
 
 <body>
-  <div id="app">
-    <!-- your header, main, nav unchanged -->
-    <div id="header">
-      <div class="header-left">
-        <div class="f1-badge">F1</div>
-        <div>
-          <div class="header-title">2026 POOL</div>
-          <div class="header-sub" id="last-updated">Loading...</div>
-        </div>
-      </div>
-      <div class="header-actions">
-        <button id="bell-btn" onclick="toggleNotifications()" title="Toggle notifications">🔔</button>
-        <button id="refresh-btn" onclick="fetchAllResults()">
-          <svg class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
-            height="16">
-            <path d="M23 4v6h-6M1 20v-6h6" />
-            <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
-          </svg>
-          Refresh
-        </button>
-      </div>
-    </div>
-
-    <div id="main">
-      <div id="screen-leaderboard" class="screen active">
-        <div id="leaderboard-content">
-          <div class="empty">🏎️ Loading standings...</div>
-        </div>
-      </div>
-      <div id="screen-races" class="screen">
-        <div id="races-content"></div>
-      </div>
-      <div id="screen-cards" class="screen">
-        <div class="cards-tabs" id="cards-tabs"></div>
-        <div id="cards-content"></div>
-      </div>
-      <div id="screen-stats" class="screen">
-        <div id="stats-content">
-          <div class="empty">Loading stats...</div>
-        </div>
-      </div>
-    </div>
-
-    <nav id="nav">
-      <button class="nav-item active" onclick="showScreen('leaderboard')">Standings</button>
-      <button class="nav-item" onclick="showScreen('races')">Races</button>
-      <button class="nav-item" onclick="showScreen('cards')">Cards</button>
-      <button class="nav-item" onclick="showScreen('stats')">Stats</button>
-    </nav>
-  </div>
-  <div id="toast"></div>
+  <h1>F1 2026 Pool - Diagnostic</h1>
+  <div id="status">Loading from API...</div>
 
   <script>
-    // ============================================================
-    // CONFIG & DATA — DYNAMIC FROM API
-    // ============================================================
-    const F1_PTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
-
-    const ENTRIES = [ /* your 4 entries from lib/entries.js */];
-
-    const TEAM_NAMES = { /* your TEAM_NAMES */ };
-    const DRIVER_TEAM = { /* your DRIVER_TEAM */ };
-
     const BASE = 'https://api.jolpi.ca/ergast/f1/2026';
-    let RACES = [];
 
-    // SAFE LOCALSTORAGE (fixes iOS sandbox error)
-    const safeStorage = {
-      getItem: (key) => { try { return localStorage.getItem(key); } catch (e) { return null; } },
-      setItem: (key, value) => { try { localStorage.setItem(key, value); } catch (e) { } },
-      removeItem: (key) => { try { localStorage.removeItem(key); } catch (e) { } }
-    };
-
-    // Clear old cache
-    safeStorage.removeItem('f1pool_data');
-    safeStorage.removeItem('f1pool_updated');
-
-    // STATE
-    let raceResults = {}, qualyResults = {}, constructorStandings = [], driverStandings = [];
-    let activeCard = 'f1seer1';
-
-    // FETCH FULL SCHEDULE + RESULTS
-    async function fetchAllResults() {
-      const btn = document.getElementById('refresh-btn');
-      btn.classList.add('loading');
-      showToast('Fetching latest F1 results...');
+    async function loadData() {
+      const status = document.getElementById('status');
+      status.textContent = 'Fetching full 2026 schedule...';
 
       try {
-        const scheduleRes = await fetch(`${BASE}/`);
-        const scheduleData = await scheduleRes.json();
-        RACES = scheduleData.MRData.RaceTable.Races.map(r => ({
-          round: parseInt(r.round),
-          name: r.raceName,
-          circuit: r.Circuit.circuitName,
-          date: r.date,
-          flag: '🏁'
-        }));
-
-        const resRes = await fetch(`${BASE}/results.json?limit=50`);
-        const resData = await resRes.json();
-        const races = resData?.MRData?.RaceTable?.Races || [];
-        raceResults = {};
-        for (const race of races) {
-          raceResults[parseInt(race.round)] = race.Results.map(r => ({
-            position: r.position,
-            familyName: r.Driver.familyName,
-            constructorId: r.Constructor.constructorId,
-            status: r.status
-          }));
-        }
+        const res = await fetch(`${BASE}/`);
+        const data = await res.json();
+        const races = data.MRData.RaceTable.Races;
+        status.innerHTML = `<strong>✅ SUCCESS!</strong><br>Loaded ${races.length} races from API.<br><br>First race: ${races[0].raceName} on ${races[0].date}<br><br>Now replace with the full app.`;
+        console.log('Full API data:', races);
       } catch (e) {
-        console.error("API error", e);
-        document.getElementById('leaderboard-content').innerHTML = '<div class="empty">❌ Could not load results. Tap Refresh.</div>';
+        status.innerHTML = `❌ ERROR: ${e.message}`;
+        console.error(e);
       }
-
-      await fetchStandings();
-
-      try {
-        safeStorage.setItem('f1pool_data', JSON.stringify({ raceResults, qualyResults, constructorStandings, driverStandings }));
-        safeStorage.setItem('f1pool_updated', new Date().toISOString());
-      } catch (e) { }
-
-      btn.classList.remove('loading');
-      updateLastUpdated();
-      renderAll();
-      showToast('✓ Results updated');
     }
 
-    // (All other functions from your original index.html — calcAll, renderLeaderboard, renderRaces, toggleNotifications, etc. — are kept exactly the same)
-
+    loadData();
   </script>
 </body>
 
