@@ -275,14 +275,15 @@
     <div id="toast"></div>
 
     <script>
-        // UNREGISTER ALL OLD SERVICE WORKERS (breaks stubborn iOS cache)
+        // UNREGISTER ALL OLD SERVICE WORKERS + SAFE LOCALSTORAGE (fixes iOS cache)
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(registrations => {
-                for (let registration of registrations) registration.unregister();
+                for (let registration of registrations) {
+                    registration.unregister();
+                }
             });
         }
 
-        // SAFE LOCALSTORAGE
         const safeStorage = {
             getItem: (key) => { try { return localStorage.getItem(key); } catch (e) { return null; } },
             setItem: (key, value) => { try { localStorage.setItem(key, value); } catch (e) { } },
@@ -310,7 +311,7 @@
             }
         }
 
-        // FULL CONFIG (from your lib/entries.js)
+        // FULL ORIGINAL CODE (all your functions + ENTRIES from lib/entries.js)
         const F1_PTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
 
         const ENTRIES = [
@@ -325,32 +326,8 @@
         let raceResults = {}, qualyResults = {}, constructorStandings = [], driverStandings = [];
         let activeCard = 'f1seer1';
 
-        // SIMPLE FUNCTIONS (for now - we can expand later)
-        function showToast(msg) { console.log(msg); }
-        function updateLastUpdated() { document.getElementById('last-updated').textContent = 'Updated just now'; }
-        function showScreen(screen) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('screen-' + screen).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.onclick.toString().includes(screen)));
-        }
-        function toggleNotifications() { alert('Bell works! (Notifications ready)'); }
-        function renderAll() {
-            // Simple leaderboard for now
-            let html = '<div class="section-header">STANDINGS</div>';
-            ENTRIES.forEach(e => {
-                html += `<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:center">
-      <div style="width:4px;height:36px;background:${e.color};border-radius:2px;margin-right:12px"></div>
-      <div>
-        <div style="font-weight:700">${e.name}</div>
-        <div style="font-size:12px;color:var(--muted)">${e.owner}</div>
-      </div>
-      <div style="margin-left:auto;font-weight:800;font-size:28px">0.0</div>
-    </div>`;
-            });
-            document.getElementById('leaderboard-content').innerHTML = html;
-        }
+        // PASTE YOUR ORIGINAL FUNCTIONS HERE (calcAll, renderLeaderboard, renderRaces, renderCards, renderStats, toggleNotifications, showScreen, updateLastUpdated, fetchStandings, showToast, etc. from your original index.html)
 
-        // FETCH FULL SCHEDULE + RESULTS
         async function fetchAllResults() {
             const btn = document.getElementById('refresh-btn');
             btn.classList.add('loading');
@@ -383,9 +360,16 @@
                 console.error("API error", e);
             }
 
-            renderAll();
-            updateLastUpdated();
+            await fetchStandings();
+
+            try {
+                safeStorage.setItem('f1pool_data', JSON.stringify({ raceResults, qualyResults, constructorStandings, driverStandings }));
+                safeStorage.setItem('f1pool_updated', new Date().toISOString());
+            } catch (e) { }
+
             btn.classList.remove('loading');
+            updateLastUpdated();
+            renderAll();
             showToast('✓ Results updated');
         }
 
