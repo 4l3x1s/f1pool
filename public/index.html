@@ -308,28 +308,32 @@
         // FULL ORIGINAL CODE
         const F1_PTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
 
-        const ENTRIES = [ /* paste your 4 entries here from lib/entries.js */];
+        const ENTRIES = [
+            { id: 'f1seer1', name: 'F1SEER_1', owner: 'Alexis', color: '#00d471', full: { A: 'Russell', B: 'Piastri', C: 'Bearman', D: 'Lindblad', E: 'Alonso' }, half: { F: 'Verstappen', G: 'Hamilton', H: 'Gasly', I: 'Bortoleto', J: 'Perez' }, bonus: { q1: 'mercedes', q2: 'Leclerc', q3: 'Russell' } },
+            { id: 'f1seer2', name: 'F1SEER_2', owner: 'Alexis', color: '#e10600', full: { A: 'Russell', B: 'Hamilton', C: 'Bearman', D: 'Lindblad', E: 'Alonso' }, half: { F: 'Verstappen', G: 'Antonelli', H: 'Gasly', I: 'Bortoleto', J: 'Perez' }, bonus: { q1: 'mercedes', q2: 'Leclerc', q3: 'Russell' } },
+            { id: 'paul', name: 'Datrain33', owner: 'Paul', color: '#ff9b00', full: { A: 'Verstappen', B: 'Piastri', C: 'Sainz', D: 'Lawson', E: 'Perez' }, half: { F: 'Norris', G: 'Antonelli', H: 'Gasly', I: 'Albon', J: 'Alonso' }, bonus: { q1: 'mclaren', q2: 'Verstappen', q3: 'Verstappen' } },
+            { id: 'wife', name: 'Peaches', owner: 'Johana', color: '#ff6bbb', full: { A: 'Russell', B: 'Piastri', C: 'Sainz', D: 'Albon', E: 'Alonso' }, half: { F: 'Verstappen', G: 'Antonelli', H: 'Gasly', I: 'Bortoleto', J: 'Perez' }, bonus: { q1: 'mclaren', q2: 'Verstappen', q3: 'Verstappen' } }
+        ];
 
         const BASE = 'https://api.jolpi.ca/ergast/f1/2026';
         let RACES = [];
         let raceResults = {}, qualyResults = {}, constructorStandings = [], driverStandings = [];
         let activeCard = 'f1seer1';
 
-        // FULL SCORING + RENDER (from your original files)
+        // SCORING
         function normName(name) { return name.toLowerCase().replace(/[^a-z]/g, ''); }
         function isFinished(status) { return status === 'Finished'; }
         function getPointsForPosition(pos, isHalf) {
             const p = F1_PTS[parseInt(pos) - 1] || 0;
             return isHalf ? p / 2 : p;
         }
-
         function calcEntryPoints(entry, raceResults) {
             let fullPts = 0, halfPts = 0;
             for (const [round, results] of Object.entries(raceResults)) {
                 if (!results || !results.length) continue;
                 const allPicks = [
-                    ...Object.entries(entry.full || {}).map(([box, drv]) => ({ drv, isHalf: false })),
-                    ...Object.entries(entry.half || {}).map(([box, drv]) => ({ drv, isHalf: true }))
+                    ...Object.entries(entry.full || {}).map(([_, drv]) => ({ drv, isHalf: false })),
+                    ...Object.entries(entry.half || {}).map(([_, drv]) => ({ drv, isHalf: true }))
                 ];
                 for (const { drv, isHalf } of allPicks) {
                     const result = results.find(r => normName(r.familyName) === normName(drv));
@@ -342,16 +346,16 @@
             }
             return { total: fullPts + halfPts, fullPts, halfPts };
         }
-
         function calcAllEntries(raceResults) {
             return ENTRIES.map(e => ({ ...e, points: calcEntryPoints(e, raceResults) }))
                 .sort((a, b) => b.points.total - a.points.total);
         }
 
+        // RENDER
         function renderLeaderboard() {
             const sorted = calcAllEntries(raceResults);
             let html = '<div class="section-header">STANDINGS</div>';
-            sorted.forEach((e, i) => {
+            sorted.forEach(e => {
                 html += `<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:center">
       <div style="width:4px;height:36px;background:${e.color};border-radius:2px;margin-right:12px"></div>
       <div>
@@ -365,9 +369,13 @@
         }
 
         function renderRaces() {
+            const today = new Date();
+            let nextRaceFound = false;
             let html = '<div class="section-header">RACE CALENDAR</div>';
             RACES.forEach(r => {
-                const isNext = new Date(r.date) > new Date();
+                const raceDate = new Date(r.date);
+                const isNext = !nextRaceFound && raceDate > today;
+                if (isNext) nextRaceFound = true;
                 html += `<div style="background:var(--card);padding:12px;margin-bottom:8px;border-radius:8px">${isNext ? '🔥 ' : '🏁 '}${r.name} — ${r.date}</div>`;
             });
             document.getElementById('races-content').innerHTML = html;
@@ -377,24 +385,25 @@
             let html = '<div class="section-header">YOUR DRIVER PICKS</div>';
             ENTRIES.forEach(e => {
                 html += `<div style="background:var(--card);padding:14px;margin-bottom:12px;border-radius:12px">
-      <strong>${e.name}</strong><br>
-      Full: ${Object.values(e.full).join(', ')}<br>
-      Half: ${Object.values(e.half).join(', ')}
+      <strong>${e.name} (${e.owner})</strong><br>
+      <strong>Full boxes:</strong> ${Object.values(e.full).join(', ')}<br>
+      <strong>Half boxes:</strong> ${Object.values(e.half).join(', ')}
     </div>`;
             });
             document.getElementById('cards-content').innerHTML = html;
         }
 
         function renderStats() {
+            const completed = Object.keys(raceResults).length;
             const html = `<div class="section-header">SEASON STATS</div>
     <div style="background:var(--card);padding:16px;border-radius:12px">
-      <div>4 players • 1 race completed</div>
+      <div>4 players • ${completed} race${completed > 1 ? 's' : ''} completed</div>
       <div style="margin-top:12px">Bonus questions coming at season end</div>
     </div>`;
             document.getElementById('stats-content').innerHTML = html;
         }
 
-        // BASIC FUNCTIONS
+        // HELPERS
         function showScreen(screen) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById('screen-' + screen).classList.add('active');
@@ -402,13 +411,13 @@
         }
         function toggleNotifications() {
             const btn = document.getElementById('bell-btn');
-            btn.classList.toggle('subscribed');
-            alert(btn.classList.contains('subscribed') ? '✅ Notifications ENABLED (push works on iPhone & Android)' : '🔕 Notifications DISABLED');
+            const isSubscribed = btn.classList.toggle('subscribed');
+            btn.innerHTML = isSubscribed ? '🔕' : '🔔';
         }
         function showToast(msg) { console.log(msg); }
         function updateLastUpdated() { document.getElementById('last-updated').textContent = 'Updated just now'; }
 
-        // MAIN FETCH
+        // FETCH
         async function fetchAllResults() {
             const btn = document.getElementById('refresh-btn');
             btn.classList.add('loading');
