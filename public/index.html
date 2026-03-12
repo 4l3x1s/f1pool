@@ -137,10 +137,6 @@
       background: var(--border)
     }
 
-    #refresh-btn.loading .spin {
-      animation: spin 1s linear infinite
-    }
-
     #install-btn {
       background: var(--card2);
       border: 1px solid var(--border);
@@ -148,7 +144,12 @@
       border-radius: 8px;
       padding: 8px 12px;
       font-size: 13px;
-      cursor: pointer
+      cursor: pointer;
+      display: none
+    }
+
+    #refresh-btn.loading .spin {
+      animation: spin 1s linear infinite
     }
 
     @keyframes spin {
@@ -240,7 +241,7 @@
       <div class="header-actions">
         <button id="bell-btn" onclick="toggleNotifications()" title="Toggle notifications">🔔</button>
         <button id="refresh-btn" onclick="fetchAllResults()" title="Refresh">Refresh</button>
-        <button id="install-btn" onclick="installPWA()" style="display:none">📲 Install App</button>
+        <button id="install-btn" onclick="installPWA()">📲 Install App</button>
       </div>
     </div>
 
@@ -250,39 +251,23 @@
           <div class="empty">🏎️ Loading standings...</div>
         </div>
       </div>
-      <div id="screen-races" class="screen">
-        <div id="races-content"></div>
-      </div>
-      <div id="screen-cards" class="screen">
-        <div class="cards-tabs" id="cards-tabs"></div>
-        <div id="cards-content"></div>
-      </div>
-      <div id="screen-stats" class="screen">
-        <div id="stats-content">
-          <div class="empty">Loading stats...</div>
-        </div>
-      </div>
     </div>
 
     <nav id="nav">
       <button class="nav-item active" onclick="showScreen('leaderboard')">Standings</button>
-      <button class="nav-item" onclick="showScreen('races')">Races</button>
-      <button class="nav-item" onclick="showScreen('cards')">Cards</button>
-      <button class="nav-item" onclick="showScreen('stats')">Stats</button>
     </nav>
   </div>
   <div id="toast"></div>
 
   <script>
-    // UNREGISTER ALL OLD SERVICE WORKERS + SAFE LOCALSTORAGE (fixes iOS cache)
+    // UNREGISTER ALL OLD SERVICE WORKERS (breaks stubborn iOS cache)
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(registrations => {
-        for (let registration of registrations) {
-          registration.unregister();
-        }
+        for (let registration of registrations) registration.unregister();
       });
     }
 
+    // SAFE LOCALSTORAGE
     const safeStorage = {
       getItem: (key) => { try { return localStorage.getItem(key); } catch (e) { return null; } },
       setItem: (key, value) => { try { localStorage.setItem(key, value); } catch (e) { } },
@@ -293,7 +278,7 @@
     safeStorage.removeItem('f1pool_data');
     safeStorage.removeItem('f1pool_updated');
 
-    // MANUAL PWA INSTALL BUTTON (for iOS/Android)
+    // MANUAL PWA INSTALL BUTTON
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -305,72 +290,49 @@
       if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          document.getElementById('install-btn').style.display = 'none';
-        }
+        if (outcome === 'accepted') document.getElementById('install-btn').style.display = 'none';
         deferredPrompt = null;
       }
     }
 
     // STATE
-    let raceResults = {}, qualyResults = {}, constructorStandings = [], driverStandings = [];
     let RACES = [];
-    let activeCard = 'f1seer1';
 
+    // FETCH FROM API
     const BASE = 'https://api.jolpi.ca/ergast/f1/2026';
 
-    // YOUR ENTRIES (paste here from lib/entries.js)
-    const ENTRIES = [ /* paste your 4 entries here */];
-
-    // FETCH FULL SCHEDULE + RESULTS FROM API
     async function fetchAllResults() {
       const btn = document.getElementById('refresh-btn');
       btn.classList.add('loading');
-      showToast('Fetching latest F1 results...');
+      document.getElementById('leaderboard-content').innerHTML = '<div class="empty">Fetching 2026 data...</div>';
 
       try {
-        const scheduleRes = await fetch(`${BASE}/`);
-        const scheduleData = await scheduleRes.json();
-        RACES = scheduleData.MRData.RaceTable.Races.map(r => ({
+        const res = await fetch(`${BASE}/`);
+        const data = await res.json();
+        RACES = data.MRData.RaceTable.Races.map(r => ({
           round: parseInt(r.round),
           name: r.raceName,
           circuit: r.Circuit.circuitName,
-          date: r.date,
-          flag: '🏁'
+          date: r.date
         }));
 
-        const resRes = await fetch(`${BASE}/results.json?limit=50`);
-        const resData = await resRes.json();
-        const races = resData?.MRData?.RaceTable?.Races || [];
-        raceResults = {};
-        for (const race of races) {
-          raceResults[parseInt(race.round)] = race.Results.map(r => ({
-            position: r.position,
-            familyName: r.Driver.familyName,
-            constructorId: r.Constructor.constructorId,
-            status: r.status
-          }));
-        }
+        // Simple render for now
+        let html = `<h2>✅ Loaded ${RACES.length} races</h2><p>First race: ${RACES[0].name} on ${RACES[0].date}</p>`;
+        document.getElementById('leaderboard-content').innerHTML = html;
+
       } catch (e) {
-        console.error("API error", e);
-        document.getElementById('leaderboard-content').innerHTML = '<div class="empty">❌ Could not load results. Tap Refresh.</div>';
+        document.getElementById('leaderboard-content').innerHTML = `<div class="empty">❌ ${e.message}</div>`;
       }
 
-      await fetchStandings();
-
-      try {
-        safeStorage.setItem('f1pool_data', JSON.stringify({ raceResults, qualyResults, constructorStandings, driverStandings }));
-        safeStorage.setItem('f1pool_updated', new Date().toISOString());
-      } catch (e) { }
-
       btn.classList.remove('loading');
-      updateLastUpdated();
-      renderAll();
-      showToast('✓ Results updated');
     }
 
-    // PASTE ALL YOUR ORIGINAL FUNCTIONS HERE (calcAll, renderLeaderboard, renderRaces, toggleNotifications, showScreen, updateLastUpdated, fetchStandings, showToast, etc.)
+    function showScreen(screen) { /* placeholder */ }
+    function toggleNotifications() { alert('Notifications toggled (bell works)'); }
+    function showToast(msg) { console.log(msg); }
 
+    // Auto-load on start
+    fetchAllResults();
   </script>
 </body>
 
