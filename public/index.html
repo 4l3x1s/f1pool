@@ -394,12 +394,31 @@
         }
 
         function renderStats() {
-            const completed = Object.keys(raceResults).length;
-            const html = `<div class="section-header">SEASON STATS</div>
-    <div style="background:var(--card);padding:16px;border-radius:12px">
-      <div>4 players • ${completed} race${completed > 1 ? 's' : ''} completed</div>
-      <div style="margin-top:12px">Bonus questions coming at season end</div>
-    </div>`;
+            // Official F1 driver & constructor standings
+            let html = '<div class="section-header">DRIVER STANDINGS</div>';
+            if (driverStandings && driverStandings.length) {
+                driverStandings.forEach(d => {
+                    html += `<div style="background:var(--card);padding:12px;margin-bottom:6px;border-radius:8px;display:flex;justify-content:space-between">
+        <span>${d.position}. ${d.Driver.givenName} ${d.Driver.familyName}</span>
+        <span style="font-weight:700">${d.points} pts</span>
+      </div>`;
+                });
+            } else {
+                html += '<div style="padding:20px;text-align:center;color:var(--muted)">Driver standings loading...</div>';
+            }
+
+            html += '<div class="section-header" style="margin-top:20px">CONSTRUCTOR STANDINGS</div>';
+            if (constructorStandings && constructorStandings.length) {
+                constructorStandings.forEach(c => {
+                    html += `<div style="background:var(--card);padding:12px;margin-bottom:6px;border-radius:8px;display:flex;justify-content:space-between">
+        <span>${c.position}. ${c.Constructor.name}</span>
+        <span style="font-weight:700">${c.points} pts</span>
+      </div>`;
+                });
+            } else {
+                html += '<div style="padding:20px;text-align:center;color:var(--muted)">Constructor standings loading...</div>';
+            }
+
             document.getElementById('stats-content').innerHTML = html;
         }
 
@@ -417,13 +436,14 @@
         function showToast(msg) { console.log(msg); }
         function updateLastUpdated() { document.getElementById('last-updated').textContent = 'Updated just now'; }
 
-        // FETCH
+        // FETCH ALL DATA
         async function fetchAllResults() {
             const btn = document.getElementById('refresh-btn');
             btn.classList.add('loading');
             showToast('Fetching latest F1 results...');
 
             try {
+                // Schedule
                 const scheduleRes = await fetch(`${BASE}/`);
                 const scheduleData = await scheduleRes.json();
                 RACES = scheduleData.MRData.RaceTable.Races.map(r => ({
@@ -434,6 +454,7 @@
                     flag: '🏁'
                 }));
 
+                // Results
                 const resRes = await fetch(`${BASE}/results.json?limit=50`);
                 const resData = await resRes.json();
                 const races = resData?.MRData?.RaceTable?.Races || [];
@@ -446,6 +467,16 @@
                         status: r.status
                     }));
                 }
+
+                // Official standings for Stats tab
+                const driverRes = await fetch(`${BASE}/driverStandings.json?limit=50`);
+                const driverData = await driverRes.json();
+                driverStandings = driverData.MRData.StandingsTable.StandingsLists[0]?.DriverStandings || [];
+
+                const constRes = await fetch(`${BASE}/constructorStandings.json?limit=50`);
+                const constData = await constRes.json();
+                constructorStandings = constData.MRData.StandingsTable.StandingsLists[0]?.ConstructorStandings || [];
+
             } catch (e) {
                 console.error("API error", e);
             }
