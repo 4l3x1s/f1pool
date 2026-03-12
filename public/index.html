@@ -141,6 +141,16 @@
       animation: spin 1s linear infinite
     }
 
+    #install-btn {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      cursor: pointer
+    }
+
     @keyframes spin {
       to {
         transform: rotate(360deg)
@@ -229,14 +239,8 @@
       </div>
       <div class="header-actions">
         <button id="bell-btn" onclick="toggleNotifications()" title="Toggle notifications">🔔</button>
-        <button id="refresh-btn" onclick="fetchAllResults()">
-          <svg class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
-            height="16">
-            <path d="M23 4v6h-6M1 20v-6h6" />
-            <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
-          </svg>
-          Refresh
-        </button>
+        <button id="refresh-btn" onclick="fetchAllResults()" title="Refresh">Refresh</button>
+        <button id="install-btn" onclick="installPWA()" style="display:none">📲 Install App</button>
       </div>
     </div>
 
@@ -288,44 +292,37 @@
     // Clear old cache
     safeStorage.removeItem('f1pool_data');
     safeStorage.removeItem('f1pool_updated');
-    // UNREGISTER ALL OLD SERVICE WORKERS (this breaks the stubborn cache)
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(registrations => {
-        for (let registration of registrations) {
-          registration.unregister();
+
+    // MANUAL PWA INSTALL BUTTON (for iOS/Android)
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('install-btn').style.display = 'block';
+    });
+
+    async function installPWA() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          document.getElementById('install-btn').style.display = 'none';
         }
-      });
+        deferredPrompt = null;
+      }
     }
-
-    // ============================================================
-    // CONFIG & DATA — DYNAMIC FROM API
-    // ============================================================
-    const F1_PTS = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
-
-    const ENTRIES = [ /* paste your 4 ENTRIES from lib/entries.js here */];
-
-    const TEAM_NAMES = { /* your TEAM_NAMES */ };
-    const DRIVER_TEAM = { /* your DRIVER_TEAM */ };
-
-    const BASE = 'https://api.jolpi.ca/ergast/f1/2026';
-    let RACES = [];
-
-    // SAFE LOCALSTORAGE
-    const safeStorage = {
-      getItem: (key) => { try { return localStorage.getItem(key); } catch (e) { return null; } },
-      setItem: (key, value) => { try { localStorage.setItem(key, value); } catch (e) { } },
-      removeItem: (key) => { try { localStorage.removeItem(key); } catch (e) { } }
-    };
-
-    // Clear old cache
-    safeStorage.removeItem('f1pool_data');
-    safeStorage.removeItem('f1pool_updated');
 
     // STATE
     let raceResults = {}, qualyResults = {}, constructorStandings = [], driverStandings = [];
+    let RACES = [];
     let activeCard = 'f1seer1';
 
-    // FETCH FULL SCHEDULE + RESULTS
+    const BASE = 'https://api.jolpi.ca/ergast/f1/2026';
+
+    // YOUR ENTRIES (paste here from lib/entries.js)
+    const ENTRIES = [ /* paste your 4 entries here */];
+
+    // FETCH FULL SCHEDULE + RESULTS FROM API
     async function fetchAllResults() {
       const btn = document.getElementById('refresh-btn');
       btn.classList.add('loading');
@@ -372,7 +369,7 @@
       showToast('✓ Results updated');
     }
 
-    // (Paste all your original functions here from your previous index.html — calcAll, renderLeaderboard, renderRaces, toggleNotifications, showScreen, updateLastUpdated, etc.)
+    // PASTE ALL YOUR ORIGINAL FUNCTIONS HERE (calcAll, renderLeaderboard, renderRaces, toggleNotifications, showScreen, updateLastUpdated, fetchStandings, showToast, etc.)
 
   </script>
 </body>
